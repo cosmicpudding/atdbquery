@@ -29,7 +29,12 @@ def query_database(obs_mode):
 	# Can only do 100 per page
 	result_num = json.loads(response.text)['count']
 	print('Total number of results found in ATDB for %s: %s' % (obs_mode.upper(),result_num))
-	pagenum = result_num // 100 + 1
+	
+	# Deal with the edge effect 
+	if result_num % 100 != 0:
+		pagenum = result_num // 100 + 1
+	else:
+		pagenum = result_num // 100		
 
 	# Define the observation dictionary
 	# Get only the field_name,field_ra,field_dec,status
