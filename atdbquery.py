@@ -9,7 +9,7 @@ import os
 import sys
 from argparse import ArgumentParser, RawTextHelpFormatter
 sys.path.append('/home/moss/atdbquery')
-from modules.functions import query_database
+from modules.functions import *
 import time
 
 # Function version
