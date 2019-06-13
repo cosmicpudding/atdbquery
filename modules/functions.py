@@ -13,15 +13,24 @@ import json
 ###################################################################
 # Query the ATDB database
 
-def query_database(obs_mode):
+def query_database(obs_mode,failures,transient):
 
-	# Define the URL for quert
-	url = 'http://atdb.astron.nl/atdb/observations/?my_status__in=completed,completing,archived,removed,on%%20hold&observing_mode__icontains=%s' % obs_mode
+	# Define the list of valid statuses:
+	valid_statuses = "ingesting,valid,completed,completing,archived,removed,on%20hold,removed%20(manual)"
+
+	# Define the URL for query
+	if failures:
+		url = 'http://atdb.astron.nl/atdb/observations/?observing_mode__icontains=%s' % (obs_mode)
+	elif transient:
+		url = 'http://atdb.astron.nl/atdb/observations/?observing_mode__icontains=imaging&my_status__in=ingesting,valid,completing' 
+	else:
+		url = 'http://atdb.astron.nl/atdb/observations/?my_status__in=%s&observing_mode__icontains=%s' % (valid_statuses,obs_mode)
 
 	# First, determine how many results there are
 	# Do the query
 	try: 
 		response = requests.get(url)
+		response.raise_for_status() # This uses the requests library to determine if the URL response is bad or not
 	except Exception as e:
 		print(e)
 		sys.exit()	
@@ -42,17 +51,23 @@ def query_database(obs_mode):
 
 	for page in range(1,pagenum+1):
 
-		url = 'http://atdb.astron.nl/atdb/observations/?my_status__in=completed,completing,archived,removed,on%%20hold&observing_mode__icontains=%s&page=%s' % (obs_mode,page)
+		# Add page to URL
+		#url = url + '&page=%s' % (page)
 
 		# Do the query
 		try: 
-			response = requests.get(url)
+			response = requests.get(url, params=dict(page=page))
+			response.raise_for_status() # This uses the requests library to determine if the URL response is bad or not
 		except Exception as e:
 			print(e)
 			sys.exit()
 
 		# Parse the data
-		metadata = json.loads(response.text)['results']
+		try: 
+			metadata = response.json()['results']
+		except:
+			print(response.text)
+			continue
 
 		# Return all information
 		for i in range(0,len(metadata)):

@@ -12,7 +12,7 @@ from modules.functions import *
 import time
 
 # Function version
-def atdbquery(obs_mode):
+def atdbquery(obs_mode,failures,transient):
 	"""
     The main program to be run.
     :return:
@@ -22,7 +22,7 @@ def atdbquery(obs_mode):
 	start = time.time()
 
 	# Send the query
-	obs_list = query_database(obs_mode)
+	obs_list = query_database(obs_mode,failures,transient)
 	print('Total number of results returned for %s: %s' % (obs_mode.upper(),len(obs_list)))
 
 	# End timing
@@ -39,12 +39,20 @@ if __name__ == '__main__':
 	# Parse the relevant arguments
 	parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
 	parser.add_argument('-m', '--mode',
-			default='sc4',
+			default='imaging',
 			help='Specify whether mode is imaging/sc1/sc4 (default: %(default)s)')
+	parser.add_argument('-f', '--failures',
+			default=False,
+			action='store_true',
+			help='Specify whether to include failures as well (default: %(default)s)')
+	parser.add_argument('-t', '--transient',
+			default=False,
+			action='store_true',
+			help='Specify whether to check only for current valid observations which have not been ingested (default: %(default)s)')
 
 	# Parse the arguments above
 	args = parser.parse_args()
 
 	# Send the query
-	obs_list = atdbquery(args.mode)
+	obs_list = atdbquery(args.mode,args.failures,args.transient)
 	print(obs_list)
