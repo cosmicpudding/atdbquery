@@ -8,7 +8,8 @@ __version__ = "0.1"
 import os
 import sys
 from argparse import ArgumentParser, RawTextHelpFormatter
-from modules.functions import *
+sys.path.append('/home/moss/atdbquery')
+from modules.functions import query_database
 import time
 
 # Function version
