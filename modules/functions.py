@@ -53,6 +53,7 @@ def query_database(obs_mode,failures,transient):
 
 		# Add page to URL
 		#url = url + '&page=%s' % (page)
+		print('Processing page %i...' % page)
 
 		# Do the query
 		try: 
